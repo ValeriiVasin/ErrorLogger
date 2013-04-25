@@ -4,9 +4,36 @@
         <title>LiveJournal JavaScript error logger</title>
         <link rel="stylesheet" href="components/bootstrap/docs/assets/css/bootstrap.css" />
     </head>
-    <body>
+    <body ng-app="ErrorLogger" ng-controller="ErrorCtrl">
         <h1>Welcome!</h1>
+
+        <button class="btn btn-large btn-primary">Production</button>
+        <button class="btn btn-large">Staging</button>
+
+        <table class="table table-striped">
+            <tr>
+                <th>#</th>
+                <th>Message</th>
+            </tr>
+            <tr ng-repeat="log in logs">
+                <td ng-bind="$index + 1"></td>
+                <td>
+                    <a href='javascript:void(0);' ng-bind='log.msg' ng-click='log.more = !log.more'></a>
+                    <ul ng-show="log.more">
+                        <li ng-repeat="item in log.errors">
+                            <a href="{{item.where}}" target='_blank' ng-bind="item.where"></a> ·
+                            <span ng-bind='item.os'></span> ·
+                            <span ng-bind='item.browser'></span> ·
+                            <span ng-bind='item.user'></span>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+
         <script src="components/angular/angular.min.js"></script>
         <script src="components/angular-resource/angular-resource.min.js"></script>
+        <script src="js/uaparser.js"></script>
+        <script src="app.js"></script>
     </body>
 </html>
