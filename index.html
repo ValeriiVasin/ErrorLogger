@@ -10,7 +10,7 @@
         <button class="btn btn-large btn-primary">Production</button>
         <button class="btn btn-large">Staging</button>
 
-        <table class="table table-striped">
+        <table class="table table-striped" ng-show="!loading">
             <tr>
                 <th>#</th>
                 <th>Message</th>
@@ -30,6 +30,10 @@
                 </td>
             </tr>
         </table>
+
+        <div class="b-loader" ng-show="loading">
+            <img src="ajax-loader.gif" alt="loader">
+        </div>
 
         <script src="components/angular/angular.min.js"></script>
         <script src="js/uaparser.js"></script>
