@@ -73,7 +73,7 @@
                 _ua = ua.getResult();
 
                 return {
-                    msg: error.msg,
+                    msg: qs.msg,
 
                     user: qs.user || '<anonymous>',
                     where: qs.where,
