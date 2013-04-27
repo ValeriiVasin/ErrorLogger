@@ -100,6 +100,12 @@
                     deferred = $q.defer(),
                     url;
 
+                if ( !this.hasSecret() ) {
+                    throw new Error('You should provide secret key.');
+                }
+
+                console.info('Get logs: %s %s', server, type);
+
                 if (data) {
                     deferred.resolve(data);
                 } else {
@@ -132,6 +138,14 @@
             setSecret: function (secret) {
                 _secret = secret;
                 return this;
+            },
+
+            /**
+             * Has secret been initialized or not
+             * @return {Boolean}  Result
+             */
+            hasSecret: function () {
+                return Boolean(_secret);
             }
         };
     }]);
@@ -139,14 +153,19 @@
     app.controller('ErrorCtrl', [
         '$scope', '$route', 'Logs',
         function ($scope, $route, Logs) {
+            $scope.secretInput = '';
             $scope.secret = localStorage.getItem('secret');
-            $scope.server = 'production';
-            $scope.type = 'top';
+            $scope.server = '';
+            $scope.type = '';
 
             $scope.$on('$routeChangeSuccess', function () {
                 var server = $route.current.server,
                     type = $route.current.type,
                     changed = false;
+
+                if (!server || !type || !$scope.secret) {
+                    return;
+                }
 
                 if (server !== $scope.server) {
                     $scope.server = server;
@@ -163,11 +182,6 @@
                 }
             });
 
-            function init(secret) {
-                Logs.setSecret(secret);
-                showLogs();
-            }
-
             function showLogs() {
                 $scope.loading = true;
                 Logs.getLogs($scope.server, $scope.type)
@@ -178,14 +192,15 @@
             }
 
             if ($scope.secret) {
-                init($scope.secret);
+                Logs.setSecret($scope.secret);
             }
 
             $scope.setSecret = function () {
                 var secret = $scope.secretInput;
                 $scope.secret = secret;
                 localStorage.setItem('secret', secret);
-                init(secret);
+                Logs.setSecret(secret);
+                showLogs();
             };
         }
     ]);
