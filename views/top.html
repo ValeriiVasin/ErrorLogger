@@ -1,1 +1,23 @@
-<h1>TOP</h1>
+<table class="table table-striped" ng-show="!loading">
+    <tr>
+        <th>#</th>
+        <th>Message</th>
+    </tr>
+    <tr ng-repeat="log in logs" ng-click="log.more = !log.more">
+        <td ng-bind="$index + 1"></td>
+        <td>
+            <a href='javascript:void(0);'
+                ng-bind='log.msg'
+                ng-click='log.more = !log.more; $event.stopPropagation();'></a>
+            <ul ng-show="log.more">
+                <li ng-repeat="item in log.errors">
+                    <a href="{{item.where}}" target='_blank' ng-click="$event.stopPropagation();" ng-bind="item.where"></a> ·
+                    <span ng-bind='item.os'></span> ·
+                    <span ng-bind='item.browser'></span> ·
+                    <span ng-bind='item.user'></span> ·
+                    <span ng-bind='item.timestamp|date:"HH:mm"'></span>
+                </li>
+            </ul>
+        </td>
+    </tr>
+</table>
