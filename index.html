@@ -12,15 +12,19 @@
             <button class='btn'>Go!</button>
         </form>
 
+        <div class="ng-view"></div>
+
         <div class="app" ng-show="secret">
-            <button
+            <a
+                href="#/production/{{type}}"
                 class="btn btn-large"
                 ng-class="{'btn-primary': server == 'production'}"
-                ng-click="setServer('production');">Production</button>
-            <button
+            >Production</a>
+            <a
+                href="#/staging/{{type}}"
                 class="btn btn-large"
                 ng-class="{'btn-primary': server == 'staging'}"
-                ng-click="setServer('staging');">Staging</button>
+            >Staging</a>
 
             <table class="table table-striped" ng-show="!loading">
                 <tr>

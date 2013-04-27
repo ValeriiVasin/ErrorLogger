@@ -3,6 +3,33 @@
     'use strict';
     var app = angular.module('ErrorLogger', []);
 
+    app.config(['$routeProvider', function (router) {
+        router
+            .when('/production/top', {
+                server: 'production',
+                type: 'top',
+                templateUrl: 'views/top.html'
+            })
+            .when('/production/latest', {
+                server: 'production',
+                type: 'latest',
+                templateUrl: 'views/latest.html'
+            })
+            .when('/staging/top', {
+                server: 'staging',
+                type: 'top',
+                templateUrl: 'views/top.html'
+            })
+            .when('/staging/latest', {
+                server: 'staging',
+                type: 'latest',
+                templateUrl: 'views/latest.html'
+            })
+            .otherwise({
+                redirectTo: '/production/latest'
+            });
+    }]);
+
     app.factory('Logs', ['$http', '$q', function ($http, $q) {
         var _url = 'http://njs.services.livejournal.com/status/{server}?secret={secret}&callback=JSON_CALLBACK',
             cache = {},
@@ -87,41 +114,57 @@
         };
     }]);
 
-    app.controller('ErrorCtrl', ['$scope', 'Logs', function ($scope, Logs) {
-        $scope.secret = localStorage.getItem('secret');
-        $scope.server = 'production';
-        $scope.type = 'top';
+    app.controller('ErrorCtrl', [
+        '$scope', '$route', 'Logs',
+        function ($scope, $route, Logs) {
+            $scope.secret = localStorage.getItem('secret');
+            $scope.server = 'production';
+            $scope.type = 'top';
 
-        function init(secret) {
-            Logs.setSecret(secret);
-            showLogs();
-        }
+            $scope.$on('$routeChangeSuccess', function () {
+                var server = $route.current.server,
+                    type = $route.current.type,
+                    changed = false;
 
-        function showLogs() {
-            $scope.loading = true;
-            Logs.getLogs($scope.server, $scope.type)
-                .then(function (data) {
-                    $scope.loading = false;
-                    $scope.logs = data;
-                });
-        }
+                if (server !== $scope.server) {
+                    $scope.server = server;
+                    changed = true;
+                }
 
-        if ($scope.secret) {
-            init($scope.secret);
-        }
+                if (type !== $scope.type) {
+                    $scope.type = type;
+                    changed = true;
+                }
 
-        $scope.setSecret = function () {
-            var secret = $scope.secretInput;
-            $scope.secret = secret;
-            localStorage.setItem('secret', secret);
-            init(secret);
-        };
+                if (changed) {
+                    showLogs();
+                }
+            });
 
-        $scope.setServer = function (server) {
-            if ( $scope.server !== server ) {
-                $scope.server = server;
+            function init(secret) {
+                Logs.setSecret(secret);
                 showLogs();
             }
-        };
-    }]);
+
+            function showLogs() {
+                $scope.loading = true;
+                Logs.getLogs($scope.server, $scope.type)
+                    .then(function (data) {
+                        $scope.loading = false;
+                        $scope.logs = data;
+                    });
+            }
+
+            if ($scope.secret) {
+                init($scope.secret);
+            }
+
+            $scope.setSecret = function () {
+                var secret = $scope.secretInput;
+                $scope.secret = secret;
+                localStorage.setItem('secret', secret);
+                init(secret);
+            };
+        }
+    ]);
 }());
