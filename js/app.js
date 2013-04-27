@@ -4,8 +4,9 @@
     var app = angular.module('ErrorLogger', []);
 
     app.factory('Logs', ['$http', '$q', function ($http, $q) {
-        var url = '',
-            cache = {};
+        var _url = 'http://njs.services.livejournal.com/status/{server}?secret={secret}&callback=JSON_CALLBACK',
+            cache = {},
+            _secret = '';
 
         function processDataTop(data) {
             var ua = new UAParser();
@@ -34,6 +35,10 @@
                 });
         }
 
+        function processDataLatest(data) {
+            return data;
+        }
+
         return {
             /**
              * Retrieve logs corresponding to server and type
@@ -41,35 +46,82 @@
              * @param  {String} type   Type: latest or ranked
              * @return {Deferred}      Http deferred
              */
-            get: function (server, type) {
+            getLogs: function (server, type) {
                 var data = cache[server + '_' + type],
-                    deferred = $q.defer();
+                    deferred = $q.defer(),
+                    url;
 
                 if (data) {
-                    deferred.resolve(cache);
+                    deferred.resolve(data);
                 } else {
+                    url = _url
+                        .replace('{server}', server === 'production' ? 'js_prod' : 'js_dev')
+                        .replace('{secret}', _secret);
+
+                    if (type === 'top') {
+                        url += '&use=memory';
+                    }
+
                     $http
                         .jsonp(url)
                         .success(function (data) {
-                            data = processDataTop(data);
+                            data = type === 'top' ?
+                                processDataTop(data) :
+                                processDataLatest(data);
+
                             cache[server + '_' + type] = data;
                             deferred.resolve(data);
                         });
                 }
 
-
                 return deferred.promise;
+            },
+
+            /**
+             * Save secret key for later usage
+             */
+            setSecret: function (secret) {
+                _secret = secret;
+                return this;
             }
         };
     }]);
 
     app.controller('ErrorCtrl', ['$scope', 'Logs', function ($scope, Logs) {
-        $scope.loading = true;
+        $scope.secret = localStorage.getItem('secret');
+        $scope.server = 'production';
+        $scope.type = 'top';
 
-        Logs.get('production', 'top')
-            .then(function (data) {
-                $scope.loading = false;
-                $scope.logs = data;
-            });
+        function init(secret) {
+            Logs.setSecret(secret);
+            showLogs();
+        }
+
+        function showLogs() {
+            $scope.loading = true;
+            Logs.getLogs($scope.server, $scope.type)
+                .then(function (data) {
+                    $scope.loading = false;
+                    $scope.logs = data;
+                });
+        }
+
+        if ($scope.secret) {
+            init($scope.secret);
+        }
+
+        $scope.setSecret = function () {
+            var secret = $scope.secretInput;
+            $scope.secret = secret;
+            localStorage.setItem('secret', secret);
+            init(secret);
+        };
+
+        $scope.setServer = function (server) {
+            if ( $scope.server !== server ) {
+                $scope.server = server;
+                showLogs();
+            }
+        };
     }]);
 }());

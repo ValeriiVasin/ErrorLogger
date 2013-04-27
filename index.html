@@ -7,35 +7,48 @@
     <body ng-app="ErrorLogger" ng-controller="ErrorCtrl">
         <h1>Welcome!</h1>
 
-        <button class="btn btn-large btn-primary">Production</button>
-        <button class="btn btn-large">Staging</button>
+        <form class='form-inline' ng-hide="secret" ng-submit="setSecret()">
+            <input type="text" placeholder="enter secret key" ng-model="secretInput" />
+            <button class='btn'>Go!</button>
+        </form>
 
-        <table class="table table-striped" ng-show="!loading">
-            <tr>
-                <th>#</th>
-                <th>Message</th>
-            </tr>
-            <tr ng-repeat="log in logs" ng-click="log.more = !log.more">
-                <td ng-bind="$index + 1"></td>
-                <td>
-                    <a href='javascript:void(0);'
-                        ng-bind='log.msg'
-                        ng-click='log.more = !log.more; $event.stopPropagation();'></a>
-                    <ul ng-show="log.more">
-                        <li ng-repeat="item in log.errors">
-                            <a href="{{item.where}}" target='_blank' ng-click="$event.stopPropagation();" ng-bind="item.where"></a> ·
-                            <span ng-bind='item.os'></span> ·
-                            <span ng-bind='item.browser'></span> ·
-                            <span ng-bind='item.user'></span> ·
-                            <span ng-bind='item.timestamp|date:"HH:mm"'></span>
-                        </li>
-                    </ul>
-                </td>
-            </tr>
-        </table>
+        <div class="app" ng-show="secret">
+            <button
+                class="btn btn-large"
+                ng-class="{'btn-primary': server == 'production'}"
+                ng-click="setServer('production');">Production</button>
+            <button
+                class="btn btn-large"
+                ng-class="{'btn-primary': server == 'staging'}"
+                ng-click="setServer('staging');">Staging</button>
 
-        <div class="b-loader" ng-show="loading">
-            <img src="ajax-loader.gif" alt="loader">
+            <table class="table table-striped" ng-show="!loading">
+                <tr>
+                    <th>#</th>
+                    <th>Message</th>
+                </tr>
+                <tr ng-repeat="log in logs" ng-click="log.more = !log.more">
+                    <td ng-bind="$index + 1"></td>
+                    <td>
+                        <a href='javascript:void(0);'
+                            ng-bind='log.msg'
+                            ng-click='log.more = !log.more; $event.stopPropagation();'></a>
+                        <ul ng-show="log.more">
+                            <li ng-repeat="item in log.errors">
+                                <a href="{{item.where}}" target='_blank' ng-click="$event.stopPropagation();" ng-bind="item.where"></a> ·
+                                <span ng-bind='item.os'></span> ·
+                                <span ng-bind='item.browser'></span> ·
+                                <span ng-bind='item.user'></span> ·
+                                <span ng-bind='item.timestamp|date:"HH:mm"'></span>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="b-loader" ng-show="loading">
+                <img src="ajax-loader.gif" alt="loader">
+            </div>
         </div>
 
         <script src="components/angular/angular.min.js"></script>
