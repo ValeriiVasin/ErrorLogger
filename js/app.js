@@ -63,6 +63,28 @@
         }
 
         function processDataLatest(data) {
+            var ua = new UAParser();
+
+            data = data.map(function (error) {
+                var qs = error.qs,
+                    _ua;
+
+                ua.setUA(error.ua);
+                _ua = ua.getResult();
+
+                return {
+                    msg: error.msg,
+
+                    user: qs.user || '<anonymous>',
+                    where: qs.where,
+                    browser: _ua.browser.name + ' ' + _ua.browser.version,
+                    os: _ua.os.name,
+
+                    timestamp: new Date(error.timestamp),
+                    ljstaging: error.ljstaging
+                };
+            });
+
             return data;
         }
 
