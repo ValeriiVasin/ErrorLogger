@@ -1,0 +1,8 @@
+{
+    "name": "LiveJournal-JavaScript-Error-Logger",
+    "description": "Web based application for monitoring LiveJournal JavaScript logs",
+    "dependencies": {
+        "express": "latest",
+        "less-middleware": "*"
+    }
+}
