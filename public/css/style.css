@@ -1,0 +1,12 @@
+body {
+    padding: 20px 50px 20px 50px;
+}
+
+.b-loader {
+    display: inline-block;
+    margin-top: 30px;
+}
+
+.table-striped {
+    margin-top: 30px;
+}
