@@ -35,8 +35,23 @@
       cache = {},
       _secret = '';
 
+    function isErrorUrlCorrect(url) {
+      var regexp = /^https?:\/\/(?:\w*\.)?livejournal.com/;
+      return regexp.test(url);
+    }
+
     function processDataTop(data) {
       var ua = new UAParser();
+
+      // filter by url
+      data = data.filter(function (error) {
+        error.errors = error.errors.filter(function (error) {
+          return error.qs && error.qs.where && isErrorUrlCorrect(error.qs.where);
+        });
+
+        return error.errors.length !== 0;
+      });
+
       return data
         .slice(0, 200)
         .map(function (data) {
@@ -83,6 +98,8 @@
           timestamp: new Date(error.timestamp),
           ljstaging: error.ljstaging
         };
+      }).filter(function (error) {
+        return isErrorUrlCorrect(error.where);
       });
 
       return data;
