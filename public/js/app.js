@@ -1,7 +1,7 @@
 /*global UAParser*/
 ;(function () {
   'use strict';
-  var app = angular.module('ErrorLogger', []);
+  var app = angular.module('ErrorLogger', ['ngRoute']);
 
   app.config(['$routeProvider', function (router) {
     router
